@@ -13,12 +13,14 @@ import (
 
 func main() {
 	// Login, Password, Host, Port
-	con := fmt.Sprintf("amqp://%s:%s@%s:%s/", "login", "passwd", "localhost", "5672")
+	con := fmt.Sprintf("amqp://%s:%s@%s:%s/", "default", "default", "localhost", "5672")
 
 	config := gorabbit.Config{
 		Connection:   con,
 		QueueName:    "messages",
 		ExchangeName: "messages-exchange",
+		TypeExchange: gorabbit.Direct,
+		RoutingKey:   "messages-key",
 		Tag:          "messages-producer",
 		Sync:         true,
 	}
@@ -30,11 +32,6 @@ func main() {
 	}
 
 	go handleErrors(producer)
-
-	go func() {
-		time.Sleep(5 * time.Second)
-		producer.GetConnection().Close()
-	}()
 
 	for i := 0; i < 1000; i++ {
 		producer.Publish([]byte(strconv.Itoa(i)))

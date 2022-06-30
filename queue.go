@@ -3,11 +3,12 @@ package gorabbit
 import (
 	"fmt"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"log"
 )
 
 // Init queue, init exchange, bind exchange + queue
-func bind(channel *amqp.Channel, nameExchange string, nameQueue string) error {
-	err := initializeExchange(channel, nameExchange)
+func bind(channel *amqp.Channel, nameExchange, typeExchange, routingKey, nameQueue string) error {
+	err := initializeExchange(channel, nameExchange, typeExchange)
 
 	if err != nil {
 		return fmt.Errorf("can`t initialize exchange: %s", err.Error())
@@ -21,7 +22,7 @@ func bind(channel *amqp.Channel, nameExchange string, nameQueue string) error {
 
 	err = channel.QueueBind(
 		nameQueue,    // queue name
-		"",           // routing key
+		routingKey,   // routing key
 		nameExchange, // exchange
 		false,
 		nil)
@@ -33,10 +34,22 @@ func bind(channel *amqp.Channel, nameExchange string, nameQueue string) error {
 	return nil
 }
 
-func initializeExchange(channel *amqp.Channel, nameExchange string) error {
+func initializeExchange(channel *amqp.Channel, nameExchange string, typeExchange string) error {
+	switch typeExchange {
+	case Direct:
+		break
+	case Fanout:
+		break
+	case Topic:
+		break
+	case Custom:
+	default:
+		log.Fatal("there is no such type exchange")
+	}
+
 	return channel.ExchangeDeclare(
 		nameExchange,
-		"direct",
+		typeExchange,
 		true,
 		false,
 		false,

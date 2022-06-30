@@ -13,6 +13,8 @@ type (
 		tag           string
 		queueName     string
 		exchangeName  string
+		exchangeType  string
+		routingKey    string
 		connectionStr string
 		done          chan struct{}
 		ErrorCh       chan error
@@ -31,6 +33,8 @@ func NewConsumer(config Config, execFn execFn) (*Consumer, error) {
 		queueName:     config.QueueName,
 		exchangeName:  config.ExchangeName,
 		connectionStr: config.Connection,
+		exchangeType:  config.TypeExchange,
+		routingKey:    config.RoutingKey,
 		execFn:        execFn,
 		done:          make(chan struct{}),
 		ErrorCh:       make(chan error),
@@ -117,7 +121,7 @@ func (c *Consumer) openChannel() error {
 
 // bind exchange consumer and queue
 func (c *Consumer) bind() error {
-	err := bind(c.channel, c.exchangeName, c.queueName)
+	err := bind(c.channel, c.exchangeName, c.exchangeType, c.routingKey, c.queueName)
 	if err != nil {
 		return fmt.Errorf("error with bind consumer and queue: %s", err.Error())
 	}

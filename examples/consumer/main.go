@@ -17,6 +17,8 @@ func main() {
 		Connection:   con,
 		QueueName:    "messages",
 		ExchangeName: "messages-exchange",
+		TypeExchange: gorabbit.Direct,
+		RoutingKey:   "messages-key",
 		Tag:          "messages-consumer",
 		Sync:         true,
 	}

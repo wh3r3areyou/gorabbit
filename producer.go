@@ -11,6 +11,8 @@ type (
 		sync          bool
 		queueName     string
 		exchangeName  string
+		exchangeType  string
+		routingKey    string
 		tag           string
 		connectionStr string
 		done          chan struct{}
@@ -25,6 +27,8 @@ func NewProducer(config Config) (*Producer, error) {
 	p := Producer{
 		queueName:     config.QueueName,
 		exchangeName:  config.ExchangeName,
+		exchangeType:  config.TypeExchange,
+		routingKey:    config.RoutingKey,
 		connectionStr: config.Connection,
 		sync:          config.Sync,
 		done:          make(chan struct{}),
@@ -77,7 +81,7 @@ func (p *Producer) openChannel() error {
 
 // bind exchange consumer and queue
 func (p *Producer) bind() error {
-	err := bind(p.channel, p.exchangeName, p.queueName)
+	err := bind(p.channel, p.exchangeName, p.exchangeType, p.routingKey, p.queueName)
 	if err != nil {
 		return fmt.Errorf("error with bind consumer and queue: %s", err.Error())
 	}
@@ -110,7 +114,7 @@ loop:
 func (p *Producer) publish(message []byte) error {
 	if err := p.channel.Publish(
 		p.exchangeName,
-		"",
+		p.routingKey,
 		false,
 		false,
 		amqp.Publishing{
